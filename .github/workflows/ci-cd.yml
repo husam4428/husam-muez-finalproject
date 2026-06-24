@@ -1,0 +1,39 @@
+name: CI-CD Build and Deploy to AKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Login to Azure Container Registry (ACR)
+      run: |
+        az acr login --name hossamcloudscaleregistry
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t hossamcloudscaleregistry.azurecr.io/hossam-app:${{ github.sha }} -f app/Dockerfile app/
+        docker push hossamcloudscaleregistry.azurecr.io/hossam-app:${{ github.sha }}
+
+    - name: Set AKS Context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: 'Hossam-Project-RG'
+        cluster-name: 'hossam-aks-cluster'
+
+    - name: Deploy to Kubernetes (AKS)
+      run: |
+        sed -i "s|image: hossamcloudscaleregistry.azurecr.io/hossam-app:v1|image: hossamcloudscaleregistry.azurecr.io/hossam-app:${{ github.sha }}|g" k8s/deployment.yaml
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
