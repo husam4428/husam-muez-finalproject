@@ -16,4 +16,4 @@ output "acr_login_server" {
 output "aks_fqdn" {
   value       = "hossam-k8s-dkzjnd3g.hcp.swedencentral.azmk8s.io"
   description = "The Fully Qualified Domain Name of the AKS cluster."
-}
+}  
