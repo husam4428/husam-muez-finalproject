@@ -49,4 +49,6 @@ jobs:
       run: |
         sed -i "s|image: hossamcloudscaleregistry.azurecr.io/hossam-app:v1|image: hossamcloudscaleregistry.azurecr.io/hossam-app:${{ github.sha }}|g" k8s/deployment.yaml
         kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+        kubectl apply -f k8s/service.yaml 
+
+
